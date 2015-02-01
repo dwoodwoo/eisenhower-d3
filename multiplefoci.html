@@ -6,8 +6,17 @@
   stroke-width: 1.5px;
 }
 
+  .axis path,
+  .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+  }
 
-
+  .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+  }
 
 </style>
 <body>
@@ -15,21 +24,56 @@
 <script>
 // "use strict";
 
-var width = 960,
-    height = 600;
+
+var margin = {top: 20, right: 20, bottom: 30, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
 
 var fill = d3.scale.category10();
 
+ var xAxisScale = d3.scale.linear()
+    .domain([-100, 100])
+    .range([0, width]);
+
+ var yAxisScale = d3.scale.linear()
+    .domain([-100, 100])
+    .range([height, 0]);
+
+
+var xAxis = d3.svg.axis()
+    .scale(xAxisScale);
+
+var yAxis = d3.svg.axis()
+  .orient("left")
+    .scale(yAxisScale);
+
 var nodes = [],
-    foci = [{x: 240, y: 150}, 
-            {x: 720, y: 150},
-            {x: 240, y: 450},
-            {x: 720, y: 450}];
+    foci = [{x: width/4 + margin.left, y: height/4 + margin.top}, 
+            {x: width*3/4, y: height/4 + margin.top},
+            {x: width/4 + margin.left, y: height*3/4 + margin.top},
+            {x: width*3/4, y: height/4, y: height*3/4 + margin.top}];
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+// var svg = d3.select("body").append("svg")
+//     .attr("width", width)
+//     .attr("height", height);
 
+
+var svg = d3.select("body")
+    .append("svg")
+          .attr("width", width + margin.left + margin.right)
+         .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var xAxisGroup = svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + height/2 + ")")
+    .call(xAxis);
+
+var yAxisGroup = svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + width/2 + ",0)")
+    .call(yAxis);
 
 
 var force = d3.layout.force()
