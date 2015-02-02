@@ -47,8 +47,13 @@ var yAxis = d3.svg.axis()
   .orient("left")
     .scale(yAxisScale);
 
+var zoomListener = d3.behavior.zoom()
+  .scaleExtent([0.1, 10])
+  .on("zoom", zoomHandler);
+
+
 var nodes = [],
-    foci = [{x: width/4 + margin.left, y: height/4 + margin.top}, 
+    foci = [{x: width/4 + margin.left, y: height/4 + margin.top},
             {x: width*3/4, y: height/4 + margin.top},
             {x: width/4 + margin.left, y: height*3/4 + margin.top},
             {x: width*3/4, y: height/4, y: height*3/4 + margin.top}];
@@ -60,10 +65,13 @@ var nodes = [],
 
 var svg = d3.select("body")
     .append("svg")
-          .attr("width", width + margin.left + margin.right)
-         .attr("height", height + margin.top + margin.bottom)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
     .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// zoomListener(svg);
+
 
 var xAxisGroup = svg.append("g")
     .attr("class", "axis")
@@ -81,8 +89,8 @@ var force = d3.layout.force()
     .links([])
     .gravity(0)
     .charge(function(d, i) {
-        var foo = d.r; 
-        console.log(i + ", " + (foo ? -(foo * foo * 0.10) : 0)); 
+        var foo = d.r;
+        console.log(i + ", " + (foo ? -(foo * foo * 0.10) : 0));
         return foo ? -(foo * foo * 0.10) : 0}
         )
     .size([width, height])
@@ -113,14 +121,14 @@ function tick(e) {
       .attr("cy", function(d) { return d.y; })
       .attr("r", function(d) { return d.r; });
 
-  
+
 }
 
 setInterval(function(){
   if (nodes.length < 30) {
     nodes.push({id: ~~(Math.random() * foci.length)});
     force.start();
-  } 
+  }
 
   node = node.data(nodes);
 
@@ -135,15 +143,21 @@ setInterval(function(){
       .call(force.drag)
       .on("mouseover", mouseover)
       .on("mouseout", mouseout);
-
-
 }, 50);
 
 
 function mouseover() {
   // var mousePos = d3.mouse(this);
-  d3.select(this)
-  .style("stroke-width", 10);
+  var d = d3.select(this).data()[0];
+  console.log("index? = " + d.index);
+  var foo = d3.select(this);
+  foo.style("stroke-width", 10);
+
+  // console.log("myidx = " + myidx);
+  nodes[d.index].id = 0;
+  console.log("nodes[d.index].index = " + nodes[d.index].index);
+  node = node.data(nodes);
+  force.start();
   // console.log("mousePos = " + mousePos);
   // console.log("d = " + d);
 }
@@ -151,7 +165,8 @@ function mouseover() {
 function mouseout() {
   // var mousePos = d3.mouse(this);
   d3.select(this)
-  .style("stroke-width", 2);
+  .style("stroke-width", 1.5);
+
   // console.log("mousePos = " + mousePos);
   // console.log("d = " + d);
 }
@@ -178,6 +193,12 @@ function collide(node) {
     }
     return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
   };
+}
+
+// function for handling zoom event
+function zoomHandler() {
+  console.log("here", d3.event.translate, d3.event.scale);
+  svg.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 }
 
 </script>
