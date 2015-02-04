@@ -120,12 +120,14 @@ function tick(e) {
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", function(d) { return d.r; });
-
-
 }
 
-setInterval(function(){
-  if (nodes.length < 30) {
+
+
+
+//put all nodes on at once instead of trickle
+// setInterval(function(){
+  while (nodes.length < 30) {
     nodes.push({id: ~~(Math.random() * foci.length)});
     force.start();
   }
@@ -142,7 +144,7 @@ setInterval(function(){
       .call(force.drag)
       .on("mouseover", mouseover)
       .on("mouseout", mouseout);
-}, 150);
+// }, 150);
 
 
 function mouseover() {
