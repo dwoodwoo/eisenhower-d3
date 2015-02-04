@@ -53,10 +53,10 @@ var zoomListener = d3.behavior.zoom()
 
 
 var nodes = [],
-    foci = [{x: width/4 + margin.left, y: height/4 + margin.top},
-            {x: width*3/4, y: height/4 + margin.top},
-            {x: width/4 + margin.left, y: height*3/4 + margin.top},
-            {x: width*3/4, y: height/4, y: height*3/4 + margin.top}];
+    foci = [{x: xAxisScale(-50), y: yAxisScale(50)},
+            {x: xAxisScale(50), y: yAxisScale(50)},
+            {x: xAxisScale(-50), y: yAxisScale(-50)},
+            {x: xAxisScale(50), y: yAxisScale(-50)}];
 
 // var svg = d3.select("body").append("svg")
 //     .attr("width", width)
@@ -126,11 +126,12 @@ function tick(e) {
 
 
 //put all nodes on at once instead of trickle
-// setInterval(function(){
-  while (nodes.length < 30) {
+setInterval(function(){
+  if (nodes.length < 30) {
     nodes.push({id: ~~(Math.random() * foci.length)});
-    force.start();
-  }
+  } 
+    force.start(); // having it inside the loop prevents clumpy behavior
+  
 
   node = node.data(nodes);
 
@@ -143,8 +144,9 @@ function tick(e) {
       .style("stroke", function(d) { return d3.rgb(fill(d.id)).darker(2); })
       .call(force.drag)
       .on("mouseover", mouseover)
-      .on("mouseout", mouseout);
-// }, 150);
+      .on("mouseout", mouseout)
+      .on("mouseup", mouseup);
+}, 100);
 
 
 function mouseover() {
@@ -162,22 +164,36 @@ function mouseover() {
 function mouseout() {
   var mousePos = d3.mouse(this);
   console.log("mousePos = " + mousePos);
+
+  d3.select(this)
+    .style("stroke-width", 1.5);
+}
+
+function mouseup() {
+  var mousePos = d3.mouse(this);
+  console.log("mousePos = " + mousePos);
   var d = d3.select(this).data()[0];
 
     
-  console.log("mouse out index? = " + d.index);
+  console.log("mouse up index? = " + d.index);
 
+//handle colors by quadrant
+  nodes[d.index].id = (mousePos[0] < xAxisScale(0)) && (mousePos[1] < yAxisScale(0)) ? 0 : d.id;
+  nodes[d.index].id = (mousePos[0] > xAxisScale(0)) && (mousePos[1] < yAxisScale(0)) ? 1 : d.id;
+  nodes[d.index].id = (mousePos[0] < xAxisScale(0)) && (mousePos[1] > yAxisScale(0)) ? 2 : d.id;
+    nodes[d.index].id = (mousePos[0] > xAxisScale(0)) && (mousePos[1] > yAxisScale(0)) ? 3 : d.id;
 
-  nodes[d.index].id = mousePos[0] < 400 ? 0 : d.id;
   d3.select(this)
     .style("stroke-width", 1.5)
-    .style("fill", function(d) { return fill(d.id); });
+    .style("fill", function(d) { return fill(d.id); })
+    .style("stroke", function(d) { return d3.rgb(fill(d.id)).darker(2); })
   console.log("nodes[d.index].index = " + nodes[d.index].index);
   node = node.data(nodes);
-  force.start();
-  // console.log("mousePos = " + mousePos);
-  // console.log("d = " + d);
+  force.resume();
 }
+
+
+
 
 function collide(node) {
   var r = node.radius + 16,
