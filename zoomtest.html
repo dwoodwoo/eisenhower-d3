@@ -1,91 +1,94 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-	.axis path,
-	.axis line {
-	    fill: none;
-	    stroke: black;
-	    shape-rendering: crispEdges;
-	}
 
-	.axis text {
-	    font-family: sans-serif;
-	    font-size: 11px;
-	}
+.node {
+  stroke-width: 1.5px;
+}
+
+  .axis path,
+  .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+  }
+
+  .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+  }
+
 </style>
 <body>
-  <button onclick="reset()">RESET</button>
-
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
+// "use strict";
+
+
 var margin = {top: 20, right: 20, bottom: 30, left: 30},
     width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    height = 600 - margin.top - margin.bottom,
+    active = d3.select(null);;
+
+var fill = d3.scale.category10();
 
  var xAxisScale = d3.scale.linear()
-    .domain([0, 100])
+    .domain([-100, 100])
     .range([0, width]);
 
  var yAxisScale = d3.scale.linear()
-    .domain([0, 100])
+    .domain([-100, 100])
     .range([height, 0]);
 
 
 var xAxis = d3.svg.axis()
-  .tickFormat(function(d) { return parseInt(d, 10) + "%"; })
     .scale(xAxisScale);
 
 var yAxis = d3.svg.axis()
   .orient("left")
     .scale(yAxisScale);
 
-
 var zoomListener = d3.behavior.zoom()
   .scaleExtent([0.1, 10])
   .on("zoom", zoomHandler);
 
-var svgbase = d3.select("body")
+
+
+var svg = d3.select("body")
     .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom);
-
-svgbase
-    .append("rect")
-      .attr("class", "background")
-      .attr('width', 960)
-      .attr('height', 500)
-      .attr('opacity', "0")
-
-var svg = svgbase
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
     .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// zoomListener(svg);
+
+
+svg.append('rect')
+    .attr("class", "background")
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('width', width)
+    .attr('height', height)
+    .style('fill', '#ddd')
+    .on("click", reset);
+
+svg.append('circle')
+    .attr('cx', xAxisScale(25))
+    .attr('cy', yAxisScale(25))
+    .attr('r', 15)
+    .style('fill', 'steelblue')
+    .on("click", myZoom);
+
 var xAxisGroup = svg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", "translate(0," + yAxisScale(0) + ")")
     .call(xAxis);
 
 var yAxisGroup = svg.append("g")
     .attr("class", "axis")
+    .attr("transform", "translate(" + xAxisScale(0) + ",0)")
     .call(yAxis);
-
-var nodes = 
-      [{"x":45,"y":50,"r":20},
-      {"x":20,"y":20,"r":20},
-      {"x":39,"y":70,"r":20},
-      {"x":80,"y":90,"r":20}];
-
-svg.append("g")
-    .attr("class", "circles-group")
-    .selectAll("circle")
-    .data(nodes)
-    .enter()
-    .append("circle")
-    .attr("cx", function(d,i) {return xAxisScale(d.x); })
-    .attr("cy", function(d,i) {return yAxisScale(d.y); })
-    .attr("r", function(d,i) {return d.r; });
-
-zoomListener(svgbase);
 
 
 // function for handling zoom event
@@ -94,11 +97,21 @@ function zoomHandler() {
   svg.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 }
 
-function reset() {
-  svgbase.transition()
+
+function myZoom () {
+    svg.transition()
       .duration(750)
-      .call(zoomListener.translate([0, 0]).scale(1).event);
+      .style("stroke-width", "1.5px")
+      .attr("transform", "translate(-600,70) scale(1.5, 1.5)");
 }
 
+function reset() {
+  active.classed("active", false);
+  active = d3.select(null);
 
+  svg.transition()
+      .duration(750)
+      .style("stroke-width", "1.5px")
+      .attr("transform", "");
+}
 </script>

@@ -2,6 +2,53 @@
 <meta charset="utf-8">
 <style>
 
+  .myButton {
+    -moz-box-shadow: 0px 1px 0px 0px #1c1b18;
+    -webkit-box-shadow: 0px 1px 0px 0px #1c1b18;
+    box-shadow: 0px 1px 0px 0px #1c1b18;
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #eae0c2), color-stop(1, #ccc2a6));
+    background:-moz-linear-gradient(top, #eae0c2 5%, #ccc2a6 100%);
+    background:-webkit-linear-gradient(top, #eae0c2 5%, #ccc2a6 100%);
+    background:-o-linear-gradient(top, #eae0c2 5%, #ccc2a6 100%);
+    background:-ms-linear-gradient(top, #eae0c2 5%, #ccc2a6 100%);
+    background:linear-gradient(to bottom, #eae0c2 5%, #ccc2a6 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#eae0c2', endColorstr='#ccc2a6',GradientType=0);
+    background-color:#eae0c2;
+    -moz-border-radius:15px;
+    -webkit-border-radius:15px;
+    border-radius:15px;
+    border:2px solid #333029;
+    display:inline-block;
+    cursor:pointer;
+    color:#505739;
+    font-family:arial;
+    font-size:14px;
+    font-weight:bold;
+    padding:12px 16px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #ffffff;
+  }
+  .myButton:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ccc2a6), color-stop(1, #eae0c2));
+    background:-moz-linear-gradient(top, #ccc2a6 5%, #eae0c2 100%);
+    background:-webkit-linear-gradient(top, #ccc2a6 5%, #eae0c2 100%);
+    background:-o-linear-gradient(top, #ccc2a6 5%, #eae0c2 100%);
+    background:-ms-linear-gradient(top, #ccc2a6 5%, #eae0c2 100%);
+    background:linear-gradient(to bottom, #ccc2a6 5%, #eae0c2 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ccc2a6', endColorstr='#eae0c2',GradientType=0);
+    background-color:#ccc2a6;
+  }
+  .myButton:active {
+    position:relative;
+    top:1px;
+  }
+
+*:focus {
+    outline: 0;
+}
+
+
+
 .node {
   stroke-width: 1.5px;
 }
@@ -20,6 +67,10 @@
 
 </style>
 <body>
+  <div class="buttonbar">
+  <button class="myButton" onclick="zoomHandler('in')">Zoom In</button>
+  <button class="myButton" onclick="zoomHandler('out')">Zoom Out</button>
+</div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 // "use strict";
@@ -70,8 +121,18 @@ var svg = d3.select("body")
     .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// zoomListener(svg);
+svg.append('rect')
+    .attr("class", "background")
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('width', width)
+    .attr('height', height)
+    .style('fill', '#ddd');
 
+
+// zoomListener(svg);
+// svg.on("mousedown.zoom", null);
+// svg.on("mousemove.zoom", null);
 
 var xAxisGroup = svg.append("g")
     .attr("class", "axis")
@@ -90,7 +151,7 @@ var force = d3.layout.force()
     .gravity(0)
     .charge(function(d, i) {
         var foo = d.r;
-        console.log(i + ", " + (foo ? -(foo * foo * 0.10) : 0));
+        //console.log(i + ", " + (foo ? -(foo * foo * 0.10) : 0));
         return foo ? -(foo * foo * 0.10) : 0}
         )
     .size([width, height])
@@ -220,9 +281,21 @@ function collide(node) {
 }
 
 // function for handling zoom event
-function zoomHandler() {
-  console.log("here", d3.event.translate, d3.event.scale);
-  svg.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+function zoomHandler(direction) {
+  console.log("in zoomHandler");
+  // console.log("here", d3.event.translate, d3.event.scale);
+  // svg.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+  if (direction === 'in') {
+    svg
+      .transition()
+      .duration(750)
+      .attr("transform", "translate(-500,000) scale(1.5,1.5)")
+  } else {
+    svg
+      .transition()
+      .duration(750)
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ") scale(1)")
+  }
 }
 
 </script>
