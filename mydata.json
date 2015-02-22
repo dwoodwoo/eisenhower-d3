@@ -1,0 +1,12 @@
+[{"id":0,"r":5,"description":"foo1"},
+{"id":0,"r":3,"description":"foo2"},
+{"id":0,"r":7,"description":"foo3"},
+{"id":1,"r":4,"description":"doo1"},
+{"id":1,"r":10,"description":"doo2"},
+{"id":1,"r":12,"description":"doo3"},
+{"id":2,"r":8,"description":"hoo1"},
+{"id":2,"r":3,"description":"hoo2"},
+{"id":2,"r":5,"description":"hoo3"},
+{"id":3,"r":15,"description":"roo1"},
+{"id":3,"r":4,"description":"roo1"},
+{"id":3,"r":10,"description":"roo1"}]
